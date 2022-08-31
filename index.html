@@ -1,69 +1,176 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head>
+
+<head>
     <meta charset="utf-8">
 
     <title>Number guessing game</title>
 
     <style>
-      html {
-        font-family: sans-serif;
-      }
+        html {
+            font-family: sans-serif;
+        }
 
-      body {
-        width: 50%;
-        max-width: 800px;
-        min-width: 480px;
-        margin: 0 auto;
-      }
-      
-      .form input[type="number"] {
-        width: 200px;
-      }
+        body {
+            width: 50%;
+            max-width: 800px;
+            min-width: 480px;
+            margin: 0 auto;
+        }
 
-      .lastResult {
-        color: white;
-        padding: 3px;
-      }
+        .form input[type="number"] {
+            width: 200px;
+        }
+
+        .lastResult {
+            color: white;
+            padding: 3px;
+        }
     </style>
-  </head>
+</head>
 
-  <body>
+<body>
     <h1>Number guessing game</h1>
 
-    <p>We have selected a random number between 1 and 100. See if you can guess it in 10 turns or fewer. We'll tell you if your guess was too high or too low.</p>
+    <p>We have selected a random number between 1 and 100. See if you can guess it in 10 turns or fewer. We'll tell you
+        if your guess was too high or too low.</p>
 
     <div class="form">
-      <label for="guessField">Enter a guess: </label>
-      <input type="number" min="1" max="100" required id="guessField" class="guessField">
-      <input type="submit" value="Submit guess" class="guessSubmit">
+        <label for="guessField">Enter a guess: </label>
+        <input type="number" min="1" max="100" required id="guessField" class="guessField">
+        <input type="submit" value="Submit guess" class="guessSubmit">
     </div>
 
     <div class="resultParas">
-      <p class="guesses"></p>
-      <p class="lastResult"></p>
-      <p class="lowOrHi"></p>
+        <p class="guesses"></p>
+        <p class="lastResult"></p>
+        <p class="lowOrHi"></p>
     </div>
 
     <script>
 
-      // Your JavaScript goes here
-      let randomNunber = Math.floor(Math.random()*100) + 1;
+        // Your JavaScript goes here
+        // randomNunberの中身は100までランダムで数字が入る
+        let randomNunber = Math.floor(Math.random() * 100) + 1;
 
+        // HTML内の(.gesses/.lastResult/.lowOrHi)を探してきて、その最初のエレメントを代入
         const guesses = document.querySelector('.guesses');
         const lastResult = document.querySelector('.lastResult');
         const lowOrHi = document.querySelector('.lowOrHi');
-
-        const guessSubmit =
-        document.querySelector('.guessSubnit');
+        
+        // HTML内の.guessSubmitを探して来て、そのエレメントをconstで宣言した「guessSbmit(定数)」に代入する
+        const guessSubmit = document.querySelector('.guessSubmit');
+        // HTML内の.guessFieldを探してきて、そのエレメントをconstで宣言した「guessField（定数）」に代入する
         const guessField = document.querySelector('.guessField');
 
+        // guessCountに１を代入
         let guessCount = 1;
+        // resetButtonという名前の変数を準備（後々入れるため）
         let resetButton;
 
+        // 入力された値をチェックするためのcheckGuess関数を宣言
+        function checkGuess() {
+            // userGuessに「Number(guessfield.value)」を代入。（入力フォームに入力された値）
+            let userGuess = Number(guessfield.value); //括弧の中身見方
+
+            // guessCountが1と同等の場合、'前回の予想：'という文字列を返す
+            if (guessCount === 1) {
+                guesses.textContent = '前回の予想:'; //if分の中のguesses.textContentどっからきたの？
+            }
+
+            guesses.textContent += userGuess + ''; //guesses.textContent = guesses.textContent + userGuess + ''
+
+            // 入力された値とrandomNunberに入っている値が同等の場合
+            if (userGuess === randomNunber) {
+                // 上記に該当する場合、lastResultに「おめでとう！正解です！」という文字列を返す
+                lastResult.textContent = 'おめでとう！正解です！';
+                // 上記に該当する場合、背景は緑にする
+                lastResult.style.backgroundColor = 'green';
+                // lowOrHi部分は何も入力されない
+                lowOrHi.textContent = '';
+                // ゲームオーバーの表示をするための関数？
+                setGameOver();
+            // gessCountが10と同等の場合
+            } else if (guessCount === 10) {
+                // 上記に該当する場合、lastResultに「!!!ゲームオーバー!!!」の文字列を返す
+                lastResult.textContent = '!!!ゲームオーバー!!!';
+                // ゲームオーバーの表示をするための関数？
+                setGameOver();
+            // 上記2つの条件のどちらにも当てはまらない場合
+            } else {
+                // lastResultに「間違いです！」の文字列を返す
+                lastResult.textContent = '間違いです！';
+                // 背景は赤
+                lastResult.style.backgroundColor = 'red';
+                // userGuessがrandomNunberよりも小さい値の場合
+                if (userGuess < randomNunber) {
+                    //lowOrHi部分に「今の予想は小さすぎです！」の文字列を代入する
+                    lowOrHi.textContent = '今の予想は小さすぎです！';
+                // userGuessがrandomNunberよりも大きい値の場合
+                } else if (userGuess > randomNunber) {
+                    // lowOrHi部分に「今の予想は大きすぎです！」の文字列を代入する
+                    lowOrHi.textContent = '今の予想は大きすぎです！'
+                }
+            }
+        }
+
+        // checkguess関数が実行されるごと＋１される
+        guessCount++;
+        //毎回入力フォームをからにする
+         guessField.value = '';
+        //guessField’に対してフォーカスを設定
+        guessField.focus();
+
+         //guessSubmitがクリックされたらチェックする
+        guessSubmit.addEventListener('click', checkGuess);
+
+        //gameoverの場合の関数
+        function setGameOver() {
+         // guessFieldのdisabledを有効にした。そのため入力ができない。
+        guessField.disabled = true;
+         // guessFieldのdisabledを有効にした。そのため入力ができない。
+        guessSubmit.disabled = true;
+        // リセットボタンにボタンエレメントを代入
+        resetButton = document.createElement('button');
+         // リセットボタンのテキストに「新しいゲームを始める」の文字列を代入
+        resetButton.textContent = '新しいゲームを始める';
+        // bodyにリセットボタンを追加する
+        document.body.appendChild(resetButton);
+        // リセットボタンをクリックするとリセットされる
+        resetButton.addEventListener('click', resetGame);
+        }
+        
+        // resetGmeをするための関数
+        function resetGame() {
+            // guessCountに1を代入
+            guessCount = 1;
+
+            // HTML内から.resultParas pを探し。そのエレメントを定数resetParasに代入
+            const resetParas = document.querySelectorAll('.resultParas p');
+            // iに0を代入。iはresetParas.lengthよりも小さい場合＋１される
+            for(let i =0; i < resetParas.length; i++) {
+                resetParas[i].textContent = '';
+            }
+            // リセットボタンを削除する。
+            resetButton.parentNode.removeChild(resetButton);
+            // guessFieldのdisabledを無効にした。
+            guessField.disabled = false;
+            // guessFieldのdisabledを無効にした。
+            guessSubmit.disabled = false;
+            // guessFieldの値に''を代入。（空にする）'
+            guessField.value = '';
+            // guessField’に対してフォーカスを設定
+            guessField.focus();
+
+            // 背景を白にする。
+            lastResult.style.backgroundColor = 'white';
+            // randomNunberに100までのランダムな数字を代入
+            randomNumber = Math.floor(Math.random() * 100) + 1;
+        }
 
 
 
     </script>
-  </body>
+</body>
+
 </html>
